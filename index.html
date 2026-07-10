@@ -1,0 +1,3325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <style>
+      .sc-placeholder {
+        background: color-mix(in srgb, currentColor 8%, transparent);
+        border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
+        border-radius: 2px;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      @keyframes sc-shine {
+        0% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      html.sc-dc-streaming .sc-placeholder,
+      html.sc-dc-streaming .sc-interp.sc-missing {
+        position: relative;
+        background: color-mix(in srgb, currentColor 5%, transparent);
+        border-color: transparent;
+      }
+      html.sc-dc-streaming .sc-placeholder::before,
+      html.sc-dc-streaming .sc-interp.sc-missing::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(
+          90deg,
+          rgba(217, 119, 87, 0) 25%,
+          rgba(247, 225, 211, 0.95) 37%,
+          rgba(217, 119, 87, 0) 63%
+        );
+        background-size: 400% 100%;
+        animation: sc-shine 1.4s ease infinite;
+      }
+      html.sc-dc-streaming
+        .sc-placeholder:nth-child(n + 9 of .sc-placeholder)::before,
+      html.sc-dc-streaming
+        .sc-interp.sc-missing:nth-child(
+          n + 9 of .sc-interp.sc-missing
+        )::before {
+        animation: none;
+        background: color-mix(in srgb, currentColor 8%, transparent);
+      }
+      .sc-placeholder-error {
+        padding: 4px 8px;
+        font:
+          11px/1.4 ui-monospace,
+          monospace;
+        color: color-mix(in srgb, currentColor 70%, transparent);
+        word-break: break-word;
+      }
+      .sc-interp.sc-missing {
+        display: inline-block;
+        width: 2em;
+        height: 1em;
+        overflow: hidden;
+        vertical-align: text-bottom;
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 2px;
+        box-sizing: border-box;
+        color: transparent;
+        user-select: none;
+      }
+      .sc-interp.sc-unresolved {
+        font-family: ui-monospace, monospace;
+        font-size: 0.85em;
+        color: color-mix(in srgb, currentColor 50%, transparent);
+        background: color-mix(in srgb, currentColor 10%, transparent);
+        border-radius: 3px;
+        padding: 0 3px;
+      }
+      .sc-host.sc-has-error {
+        position: relative;
+      }
+      .sc-logic-error {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 2147483647;
+        max-width: 60ch;
+        padding: 6px 10px;
+        background: #b00020;
+        color: #fff;
+        font:
+          12px/1.4 ui-monospace,
+          monospace;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        pointer-events: none;
+      }
+      /* Mirrors PRINT_BASELINE_CSS in apps/web deck-stage-export.ts — keep both
+       in sync until dc-runtime regains a build step. */
+      @media print {
+        @page {
+          margin: 0.5cm;
+        }
+        figure,
+        table {
+          break-inside: avoid;
+        }
+        #dc-root,
+        #dc-root > .sc-host {
+          height: auto;
+        }
+        *,
+        *::before,
+        *::after {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          animation-delay: -99s !important;
+          animation-duration: 0.001s !important;
+          animation-iteration-count: 1 !important;
+          animation-fill-mode: both !important;
+          animation-play-state: running !important;
+          transition-duration: 0s !important;
+        }
+      }
+    </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      x-dc {
+        display: none !important;
+      }
+    </style>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      #dc-root,
+      #dc-root > .sc-host {
+        height: 100%;
+      }
+    </style>
+    <title data-dc-tpl="2">Joshua Blair — Frontend Software Engineer</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+      data-dc-tpl="3"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+      data-dc-tpl="4"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+      data-dc-tpl="5"
+    />
+    <style data-dc-tpl="6">
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: #eef0f3;
+        color: #0f1115;
+        -webkit-font-smoothing: antialiased;
+      }
+      ::selection {
+        background: #2f6bff;
+        color: #fff;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+      @keyframes floaty {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-16px) rotate(8deg);
+        }
+      }
+      @keyframes floaty2 {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(14px) rotate(-10deg);
+        }
+      }
+      @keyframes blobmove {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(40px, -30px) scale(1.1);
+        }
+        66% {
+          transform: translate(-30px, 25px) scale(0.95);
+        }
+      }
+      @keyframes marquee {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(8px);
+        }
+      }
+      @keyframes spin360 {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    </style>
+    <script data-dc-tpl="7">
+      (function () {
+        function animateCount(el) {
+          var target = parseFloat(el.dataset.count) || 0,
+            suffix = el.dataset.suffix || "",
+            dur = 1400,
+            start = null;
+          function step(now) {
+            if (!start) start = now;
+            var p = Math.min(1, (now - start) / dur);
+            var e = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(target * e) + suffix;
+            if (p < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        }
+        function init() {
+          var els = document.querySelectorAll("[data-count]");
+          if (!els.length) {
+            return false;
+          }
+          var io = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (en) {
+                if (en.isIntersecting) {
+                  animateCount(en.target);
+                  io.unobserve(en.target);
+                }
+              });
+            },
+            { threshold: 0.4 },
+          );
+          els.forEach(function (el) {
+            io.observe(el);
+          });
+          return true;
+        }
+        var tries = 0,
+          t = setInterval(function () {
+            tries++;
+            if (init() || tries > 40) {
+              clearInterval(t);
+            }
+          }, 150);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="dc-root">
+      <div class="sc-host" data-sc-name="Joshua Blair Portfolio (1)">
+        <header
+          data-dc-tpl="8"
+          style="
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+          "
+        >
+          <nav
+            data-dc-tpl="9"
+            style="
+              width: 100%;
+              max-width: 1120px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding: 10px 14px 10px 18px;
+              background: rgba(255, 255, 255, 0.72);
+              backdrop-filter: blur(16px);
+              border: 1px solid rgba(15, 17, 21, 0.06);
+              border-radius: 18px;
+              box-shadow: rgba(15, 17, 21, 0.06) 0px 8px 30px;
+            "
+          >
+            <a
+              data-dc-tpl="10"
+              href="#top"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-family: &quot;Space Grotesk&quot;, sans-serif;
+                font-weight: 700;
+                font-size: 19px;
+                letter-spacing: -0.5px;
+              "
+            >
+              <span
+                data-dc-tpl="11"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 34px;
+                  height: 34px;
+                  border-radius: 10px;
+                  background: linear-gradient(
+                    135deg,
+                    rgb(59, 130, 246),
+                    rgb(37, 99, 235)
+                  );
+                  color: rgb(255, 255, 255);
+                  font-size: 15px;
+                "
+                >JB</span
+              >
+              <span data-dc-tpl="12"
+                >Joshua<span data-dc-tpl="13" style="color: rgb(47, 107, 255)"
+                  >.</span
+                ></span
+              >
+            </a>
+            <div
+              data-dc-tpl="14"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-weight: 600;
+                font-size: 14.5px;
+              "
+            >
+              <a
+                data-dc-tpl="15"
+                href="#about"
+                class="scp0"
+                style="
+                  padding: 9px 14px;
+                  border-radius: 10px;
+                  color: rgb(58, 66, 80);
+                "
+                >About</a
+              >
+              <a
+                data-dc-tpl="16"
+                href="#projects"
+                class="scp0"
+                style="
+                  padding: 9px 14px;
+                  border-radius: 10px;
+                  color: rgb(58, 66, 80);
+                "
+                >Projects</a
+              >
+              <a
+                data-dc-tpl="17"
+                href="#journey"
+                class="scp0"
+                style="
+                  padding: 9px 14px;
+                  border-radius: 10px;
+                  color: rgb(58, 66, 80);
+                "
+                >Journey</a
+              >
+              <a
+                data-dc-tpl="18"
+                href="#contact"
+                class="scp1"
+                style="
+                  margin-left: 6px;
+                  padding: 10px 18px;
+                  border-radius: 11px;
+                  color: rgb(255, 255, 255);
+                  background: linear-gradient(
+                    135deg,
+                    rgb(59, 130, 246),
+                    rgb(37, 99, 235)
+                  );
+                  box-shadow: rgba(37, 99, 235, 0.32) 0px 6px 16px;
+                "
+                >Let's talk</a
+              >
+            </div>
+          </nav>
+        </header>
+        <section
+          data-dc-tpl="19"
+          id="top"
+          style="
+            position: relative;
+            overflow: hidden;
+            padding: 180px 24px 110px;
+            display: flex;
+            justify-content: center;
+          "
+        >
+          <div
+            data-dc-tpl="20"
+            style="
+              position: absolute;
+              top: 6%;
+              left: -6%;
+              width: 520px;
+              height: 520px;
+              border-radius: 50%;
+              background: radial-gradient(
+                circle at 30% 30%,
+                rgba(59, 130, 246, 0.35),
+                rgba(37, 99, 235, 0) 70%
+              );
+              filter: blur(20px);
+              animation: 16s ease-in-out 0s infinite normal none running
+                blobmove;
+              pointer-events: none;
+            "
+          ></div>
+          <div
+            data-dc-tpl="21"
+            style="
+              position: absolute;
+              bottom: -10%;
+              right: -4%;
+              width: 460px;
+              height: 460px;
+              border-radius: 50%;
+              background: radial-gradient(
+                circle at 60% 40%,
+                rgba(96, 165, 250, 0.28),
+                rgba(96, 165, 250, 0) 70%
+              );
+              filter: blur(20px);
+              animation: 20s ease-in-out 0s infinite reverse none running
+                blobmove;
+              pointer-events: none;
+            "
+          ></div>
+
+          <div
+            data-dc-tpl="22"
+            style="
+              position: absolute;
+              top: 16%;
+              left: 8%;
+              width: 26px;
+              height: 26px;
+              border: 2px solid rgba(47, 107, 255, 0.5);
+              border-radius: 50%;
+              animation: 7s ease-in-out 0s infinite normal none running floaty;
+            "
+          ></div>
+          <div
+            data-dc-tpl="23"
+            style="
+              position: absolute;
+              top: 24%;
+              right: 12%;
+              width: 0px;
+              height: 0px;
+              border-left: 11px solid transparent;
+              border-right: 11px solid transparent;
+              border-bottom: 19px solid rgba(47, 107, 255, 0.35);
+              animation: 9s ease-in-out 0s infinite normal none running floaty2;
+            "
+          ></div>
+          <div
+            data-dc-tpl="24"
+            style="
+              position: absolute;
+              bottom: 22%;
+              left: 14%;
+              width: 0px;
+              height: 0px;
+              border-left: 9px solid transparent;
+              border-right: 9px solid transparent;
+              border-bottom: 16px solid rgba(15, 17, 21, 0.14);
+              animation: 8s ease-in-out 0s infinite normal none running floaty;
+            "
+          ></div>
+          <div
+            data-dc-tpl="25"
+            style="
+              position: absolute;
+              bottom: 30%;
+              right: 16%;
+              width: 22px;
+              height: 22px;
+              border: 2px solid rgba(15, 17, 21, 0.12);
+              border-radius: 6px;
+              animation: 10s ease-in-out 0s infinite normal none running floaty2;
+            "
+          ></div>
+          <div
+            data-dc-tpl="26"
+            style="
+              position: absolute;
+              top: 52%;
+              left: 4%;
+              width: 34px;
+              height: 8px;
+              border-bottom: 2px solid rgba(47, 107, 255, 0.4);
+              border-radius: 0px 0px 40px 40px;
+              animation: 11s ease-in-out 0s infinite normal none running floaty;
+            "
+          ></div>
+
+          <div
+            data-dc-tpl="27"
+            style="
+              position: relative;
+              width: 100%;
+              max-width: 1120px;
+              text-align: center;
+            "
+          >
+            <div
+              data-dc-tpl="28"
+              data-reveal=""
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                padding: 7px 15px;
+                border-radius: 100px;
+                background: rgba(47, 107, 255, 0.09);
+                border: 1px solid rgba(47, 107, 255, 0.18);
+                color: rgb(37, 99, 235);
+                font-weight: 600;
+                font-size: 13.5px;
+                margin-bottom: 26px;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              <span
+                data-dc-tpl="29"
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: rgb(34, 197, 94);
+                  box-shadow: rgba(34, 197, 94, 0.18) 0px 0px 0px 4px;
+                "
+              ></span>
+              Open to frontend roles · Independence, KY
+            </div>
+            <h1
+              data-dc-tpl="30"
+              data-reveal=""
+              data-delay="80"
+              style="
+                font-family: &quot;Space Grotesk&quot;, sans-serif;
+                font-weight: 700;
+                font-size: clamp(46px, 8vw, 92px);
+                line-height: 0.98;
+                letter-spacing: -2.5px;
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              Hey, I'm
+              <span
+                data-dc-tpl="31"
+                style="
+                  background: linear-gradient(
+                      120deg,
+                      rgb(59, 130, 246),
+                      rgb(37, 99, 235) 60%,
+                      rgb(96, 165, 250)
+                    )
+                    text;
+                  color: transparent;
+                "
+                >Joshua Blair</span
+              ><br data-dc-tpl="32" />a Frontend Software Engineer.
+            </h1>
+            <p
+              data-dc-tpl="33"
+              data-reveal=""
+              data-delay="180"
+              style="
+                max-width: 640px;
+                margin: 26px auto 0px;
+                font-size: clamp(17px, 2vw, 20px);
+                line-height: 1.6;
+                color: rgb(74, 83, 97);
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              I build fast, responsive web applications with
+              <strong
+                data-dc-tpl="34"
+                style="color: rgb(15, 17, 21); font-weight: 700"
+                >Next.js, React &amp; Tailwind</strong
+              >
+              — bringing a decade of leadership discipline to clean, user-first
+              interfaces.
+            </p>
+            <div
+              data-dc-tpl="35"
+              data-reveal=""
+              data-delay="280"
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 14px;
+                justify-content: center;
+                margin-top: 38px;
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              <a
+                data-dc-tpl="36"
+                href="#projects"
+                class="scp2"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 9px;
+                  padding: 15px 26px;
+                  border-radius: 14px;
+                  font-weight: 700;
+                  font-size: 15.5px;
+                  color: rgb(255, 255, 255);
+                  background: linear-gradient(
+                    135deg,
+                    rgb(59, 130, 246),
+                    rgb(37, 99, 235)
+                  );
+                  box-shadow: rgba(37, 99, 235, 0.35) 0px 10px 26px;
+                "
+              >
+                View my work
+                <span data-dc-tpl="37" style="font-size: 18px">↓</span>
+              </a>
+              <a
+                data-dc-tpl="38"
+                href="https://github.com/jdblair78"
+                target="_blank"
+                class="scp3"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 9px;
+                  padding: 15px 24px;
+                  border-radius: 14px;
+                  font-weight: 700;
+                  font-size: 15.5px;
+                  color: rgb(15, 17, 21);
+                  background: rgb(255, 255, 255);
+                  border: 1px solid rgba(15, 17, 21, 0.09);
+                  box-shadow: rgba(15, 17, 21, 0.05) 0px 6px 18px;
+                "
+                >GitHub</a
+              >
+              <a
+                data-dc-tpl="39"
+                href="https://www.linkedin.com/in/joshua-blair-4310a183/"
+                target="_blank"
+                class="scp3"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 9px;
+                  padding: 15px 24px;
+                  border-radius: 14px;
+                  font-weight: 700;
+                  font-size: 15.5px;
+                  color: rgb(15, 17, 21);
+                  background: rgb(255, 255, 255);
+                  border: 1px solid rgba(15, 17, 21, 0.09);
+                  box-shadow: rgba(15, 17, 21, 0.05) 0px 6px 18px;
+                "
+                >LinkedIn</a
+              >
+            </div>
+            <div
+              data-dc-tpl="40"
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                margin-top: 64px;
+                color: rgb(154, 163, 176);
+                font-size: 12.5px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+              "
+            >
+              <span data-dc-tpl="41">Scroll</span>
+              <span
+                data-dc-tpl="42"
+                style="
+                  animation: 1.8s ease-in-out 0s infinite normal none running
+                    bob;
+                  font-size: 16px;
+                "
+                >↓</span
+              >
+            </div>
+          </div>
+        </section>
+        <section
+          data-dc-tpl="43"
+          style="padding: 8px 0px 44px; overflow: hidden"
+        >
+          <div
+            data-dc-tpl="44"
+            style="
+              display: flex;
+              width: max-content;
+              gap: 56px;
+              animation: 26s linear 0s infinite normal none running marquee;
+              font-family: &quot;Space Grotesk&quot;, sans-serif;
+              font-weight: 600;
+              font-size: clamp(22px, 3vw, 30px);
+              color: rgb(195, 202, 212);
+              white-space: nowrap;
+            "
+          >
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">Next.js</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">React</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">JavaScript</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">TypeScript</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">Tailwind CSS</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">Firebase</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">HTML5</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">CSS3</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">Git &amp; GitHub</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+
+            <span
+              data-dc-tpl="46"
+              style="display: inline-flex; align-items: center; gap: 56px"
+              ><span class="sc-interp">REST APIs</span
+              ><span data-dc-tpl="47" style="color: rgb(47, 107, 255)"
+                >✦</span
+              ></span
+            >
+          </div>
+        </section>
+        <section
+          data-dc-tpl="48"
+          style="
+            display: flex;
+            justify-content: center;
+            padding: 20px 24px 40px;
+          "
+        >
+          <div
+            data-dc-tpl="49"
+            style="
+              width: 100%;
+              max-width: 1120px;
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 16px;
+            "
+          >
+            <div
+              data-dc-tpl="51"
+              data-reveal=""
+              style="
+                background: rgb(255, 255, 255);
+                border: 1px solid rgba(15, 17, 21, 0.06);
+                border-radius: 20px;
+                padding: 26px 22px;
+                text-align: center;
+                box-shadow: rgba(15, 17, 21, 0.04) 0px 8px 26px;
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              <div
+                data-dc-tpl="52"
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: clamp(34px, 4vw, 48px);
+                  letter-spacing: -1.5px;
+                  color: rgb(37, 99, 235);
+                "
+              >
+                <span data-dc-tpl="53" data-count="15" data-suffix="+"
+                  >15+</span
+                >
+              </div>
+              <div
+                data-dc-tpl="54"
+                style="
+                  margin-top: 6px;
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: rgb(90, 100, 114);
+                "
+              >
+                <span class="sc-interp">Repositories shipped</span>
+              </div>
+            </div>
+
+            <div
+              data-dc-tpl="51"
+              data-reveal=""
+              style="
+                background: rgb(255, 255, 255);
+                border: 1px solid rgba(15, 17, 21, 0.06);
+                border-radius: 20px;
+                padding: 26px 22px;
+                text-align: center;
+                box-shadow: rgba(15, 17, 21, 0.04) 0px 8px 26px;
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              <div
+                data-dc-tpl="52"
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: clamp(34px, 4vw, 48px);
+                  letter-spacing: -1.5px;
+                  color: rgb(37, 99, 235);
+                "
+              >
+                <span data-dc-tpl="53" data-count="157" data-suffix=""
+                  >157</span
+                >
+              </div>
+              <div
+                data-dc-tpl="54"
+                style="
+                  margin-top: 6px;
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: rgb(90, 100, 114);
+                "
+              >
+                <span class="sc-interp">Contributions / yr</span>
+              </div>
+            </div>
+
+            <div
+              data-dc-tpl="51"
+              data-reveal=""
+              style="
+                background: rgb(255, 255, 255);
+                border: 1px solid rgba(15, 17, 21, 0.06);
+                border-radius: 20px;
+                padding: 26px 22px;
+                text-align: center;
+                box-shadow: rgba(15, 17, 21, 0.04) 0px 8px 26px;
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              <div
+                data-dc-tpl="52"
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: clamp(34px, 4vw, 48px);
+                  letter-spacing: -1.5px;
+                  color: rgb(37, 99, 235);
+                "
+              >
+                <span data-dc-tpl="53" data-count="10" data-suffix="+"
+                  >10+</span
+                >
+              </div>
+              <div
+                data-dc-tpl="54"
+                style="
+                  margin-top: 6px;
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: rgb(90, 100, 114);
+                "
+              >
+                <span class="sc-interp">Yrs leading teams</span>
+              </div>
+            </div>
+
+            <div
+              data-dc-tpl="51"
+              data-reveal=""
+              style="
+                background: rgb(255, 255, 255);
+                border: 1px solid rgba(15, 17, 21, 0.06);
+                border-radius: 20px;
+                padding: 26px 22px;
+                text-align: center;
+                box-shadow: rgba(15, 17, 21, 0.04) 0px 8px 26px;
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              <div
+                data-dc-tpl="52"
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: clamp(34px, 4vw, 48px);
+                  letter-spacing: -1.5px;
+                  color: rgb(37, 99, 235);
+                "
+              >
+                <span data-dc-tpl="53" data-count="5" data-suffix="">5</span>
+              </div>
+              <div
+                data-dc-tpl="54"
+                style="
+                  margin-top: 6px;
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: rgb(90, 100, 114);
+                "
+              >
+                <span class="sc-interp">Featured projects</span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          data-dc-tpl="55"
+          id="about"
+          style="display: flex; justify-content: center; padding: 70px 24px"
+        >
+          <div
+            data-dc-tpl="56"
+            style="
+              width: 100%;
+              max-width: 1120px;
+              display: grid;
+              grid-template-columns: 0.85fr 1.15fr;
+              gap: 56px;
+              align-items: center;
+            "
+          >
+            <div
+              data-dc-tpl="57"
+              data-reveal=""
+              style="
+                position: relative;
+                opacity: 0;
+                transform: translateY(24px);
+                transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+              "
+            >
+              <div
+                data-dc-tpl="58"
+                style="
+                  position: relative;
+                  aspect-ratio: 1 / 1;
+                  border-radius: 28px;
+                  background: linear-gradient(
+                    150deg,
+                    rgb(37, 99, 235),
+                    rgb(30, 58, 138)
+                  );
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  overflow: hidden;
+                  box-shadow: rgba(37, 99, 235, 0.32) 0px 26px 60px;
+                "
+              >
+                <span
+                  data-dc-tpl="59"
+                  style="
+                    font-family: &quot;Space Grotesk&quot;, sans-serif;
+                    font-weight: 700;
+                    font-size: 150px;
+                    color: rgba(255, 255, 255, 0.95);
+                    letter-spacing: -4px;
+                  "
+                  >JB</span
+                >
+                <div
+                  data-dc-tpl="60"
+                  style="
+                    position: absolute;
+                    inset: 0px;
+                    background: radial-gradient(
+                      circle at 70% 20%,
+                      rgba(255, 255, 255, 0.18),
+                      transparent 55%
+                    );
+                  "
+                ></div>
+                <div
+                  data-dc-tpl="61"
+                  style="
+                    position: absolute;
+                    top: 16px;
+                    right: 16px;
+                    width: 60px;
+                    height: 60px;
+                    border: 2px dashed rgba(255, 255, 255, 0.35);
+                    border-radius: 50%;
+                    animation: 14s linear 0s infinite normal none running
+                      spin360;
+                  "
+                ></div>
+              </div>
+              <div
+                data-dc-tpl="62"
+                style="
+                  position: absolute;
+                  bottom: -18px;
+                  left: -18px;
+                  background: rgb(255, 255, 255);
+                  padding: 14px 18px;
+                  border-radius: 16px;
+                  box-shadow: rgba(15, 17, 21, 0.12) 0px 14px 34px;
+                  font-weight: 700;
+                  font-size: 14px;
+                "
+              >
+                <span data-dc-tpl="63" style="color: rgb(34, 197, 94)">●</span>
+                10+ yrs leading teams
+              </div>
+            </div>
+            <div data-dc-tpl="64">
+              <div
+                data-dc-tpl="65"
+                data-reveal=""
+                style="
+                  font-weight: 700;
+                  font-size: 13px;
+                  letter-spacing: 2px;
+                  text-transform: uppercase;
+                  color: rgb(47, 107, 255);
+                  opacity: 0;
+                  transform: translateY(20px);
+                  transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                About me
+              </div>
+              <h2
+                data-dc-tpl="66"
+                data-reveal=""
+                data-delay="60"
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: clamp(30px, 4vw, 44px);
+                  letter-spacing: -1.5px;
+                  line-height: 1.08;
+                  margin: 14px 0px 20px;
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                From running high-volume teams<br data-dc-tpl="67" />to shipping
+                polished interfaces.
+              </h2>
+              <p
+                data-dc-tpl="68"
+                data-reveal=""
+                data-delay="120"
+                style="
+                  font-size: 17px;
+                  line-height: 1.7;
+                  color: rgb(74, 83, 97);
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                I'm a front-end developer with hands-on experience building
+                responsive web apps in
+                <strong data-dc-tpl="69" style="color: rgb(15, 17, 21)"
+                  >Next.js, React, JavaScript, Tailwind CSS &amp;
+                  Firebase</strong
+                >. A graduate of Frontend Simplified's software-engineering
+                bootcamp, I pair fresh engineering skills with a decade of
+                operations leadership — so I sweat the details, ship on time,
+                and keep the user first.
+              </p>
+              <div
+                data-dc-tpl="70"
+                data-reveal=""
+                data-delay="180"
+                style="
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 9px;
+                  margin-top: 26px;
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">Next.js</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">React.js</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">JavaScript (ES6+)</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">TypeScript</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">HTML5</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">CSS3</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">Tailwind CSS</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">Firebase</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">REST APIs</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">Git &amp; GitHub</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">Responsive Design</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">State Management</span></span
+                >
+
+                <span
+                  data-dc-tpl="72"
+                  style="
+                    padding: 9px 15px;
+                    border-radius: 100px;
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.08);
+                    font-weight: 600;
+                    font-size: 14px;
+                    color: rgb(42, 51, 64);
+                    box-shadow: rgba(15, 17, 21, 0.04) 0px 4px 12px;
+                  "
+                  ><span class="sc-interp">Performance</span></span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          data-dc-tpl="73"
+          id="projects"
+          style="display: flex; justify-content: center; padding: 70px 24px"
+        >
+          <div data-dc-tpl="74" style="width: 100%; max-width: 1120px">
+            <div
+              data-dc-tpl="75"
+              style="text-align: center; margin-bottom: 52px"
+            >
+              <div
+                data-dc-tpl="76"
+                data-reveal=""
+                style="
+                  font-weight: 700;
+                  font-size: 13px;
+                  letter-spacing: 2px;
+                  text-transform: uppercase;
+                  color: rgb(47, 107, 255);
+                  opacity: 0;
+                  transform: translateY(20px);
+                  transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                Selected work
+              </div>
+              <h2
+                data-dc-tpl="77"
+                data-reveal=""
+                data-delay="60"
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: clamp(32px, 5vw, 52px);
+                  letter-spacing: -2px;
+                  margin-top: 12px;
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                Here are some of my
+                <span data-dc-tpl="78" style="color: rgb(47, 107, 255)"
+                  >Projects</span
+                >
+              </h2>
+            </div>
+            <div
+              data-dc-tpl="79"
+              style="
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 26px;
+              "
+            >
+              <div
+                data-dc-tpl="81"
+                data-reveal=""
+                class="scp4"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  background: rgb(255, 255, 255);
+                  border: 1px solid rgba(15, 17, 21, 0.06);
+                  border-radius: 24px;
+                  overflow: hidden;
+                  box-shadow: rgba(15, 17, 21, 0.06) 0px 12px 34px;
+                  transition:
+                    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.5s,
+                    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                  opacity: 0;
+                  transform: translateY(28px);
+                "
+              >
+                <div
+                  data-dc-tpl="82"
+                  style="
+                    position: relative;
+                    height: 190px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 26px;
+                    background: rgb(15, 17, 21);
+                    overflow: hidden;
+                  "
+                >
+                  <div
+                    data-dc-tpl="83"
+                    style="
+                      position: absolute;
+                      top: 14px;
+                      left: 16px;
+                      display: flex;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="84"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.35);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="85"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.25);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="86"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.18);
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    data-dc-tpl="87"
+                    style="
+                      font-family: &quot;Space Grotesk&quot;, sans-serif;
+                      font-weight: 700;
+                      font-size: clamp(24px, 3vw, 34px);
+                      line-height: 1.05;
+                      letter-spacing: -1px;
+                      text-align: center;
+                      color: rgb(255, 255, 255);
+                    "
+                  >
+                    <span class="sc-interp">Sophisticated skincare</span>
+                  </div>
+                </div>
+                <div
+                  data-dc-tpl="88"
+                  style="
+                    padding: 26px 26px 28px;
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1 1 0%;
+                  "
+                >
+                  <div
+                    data-dc-tpl="89"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="90"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 22px;
+                        letter-spacing: -0.5px;
+                      "
+                    >
+                      <span class="sc-interp">Skinstric AI</span>
+                    </h3>
+                    <span
+                      data-dc-tpl="91"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        background: rgba(47, 107, 255, 0.09);
+                        padding: 5px 11px;
+                        border-radius: 100px;
+                      "
+                      ><span class="sc-interp">AI · Skincare</span></span
+                    >
+                  </div>
+                  <p
+                    data-dc-tpl="92"
+                    style="
+                      margin-top: 12px;
+                      font-size: 15px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                      flex: 1 1 0%;
+                    "
+                  >
+                    <span class="sc-interp"
+                      >An AI-driven skincare analysis app that scans a user's
+                      face and recommends a tailored routine. Built the
+                      responsive UI and the camera-capture flow.</span
+                    >
+                  </p>
+                  <div
+                    data-dc-tpl="93"
+                    style="
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: 7px;
+                      margin-top: 18px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">Next.js</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">React</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">AI API</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="96"
+                    style="
+                      display: flex;
+                      gap: 14px;
+                      margin-top: 22px;
+                      font-weight: 700;
+                      font-size: 14.5px;
+                    "
+                  >
+                    <a
+                      data-dc-tpl="97"
+                      href="https://skinstric-ai-ten-tan.vercel.app/"
+                      target="_blank"
+                      class="scp5"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(37, 99, 235);
+                      "
+                      >Live demo →</a
+                    >
+                    <a
+                      data-dc-tpl="98"
+                      href="https://github.com/jdblair78/Skinstric-AI"
+                      target="_blank"
+                      class="scp6"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(58, 66, 80);
+                      "
+                      >Code</a
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                data-dc-tpl="81"
+                data-reveal=""
+                class="scp4"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  background: rgb(255, 255, 255);
+                  border: 1px solid rgba(15, 17, 21, 0.06);
+                  border-radius: 24px;
+                  overflow: hidden;
+                  box-shadow: rgba(15, 17, 21, 0.06) 0px 12px 34px;
+                  transition:
+                    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.5s,
+                    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                  opacity: 0;
+                  transform: translateY(28px);
+                "
+              >
+                <div
+                  data-dc-tpl="82"
+                  style="
+                    position: relative;
+                    height: 190px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 26px;
+                    background: linear-gradient(
+                      140deg,
+                      rgb(11, 61, 46),
+                      rgb(22, 163, 74)
+                    );
+                    overflow: hidden;
+                  "
+                >
+                  <div
+                    data-dc-tpl="83"
+                    style="
+                      position: absolute;
+                      top: 14px;
+                      left: 16px;
+                      display: flex;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="84"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.35);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="85"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.25);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="86"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.18);
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    data-dc-tpl="87"
+                    style="
+                      font-family: &quot;Space Grotesk&quot;, sans-serif;
+                      font-weight: 700;
+                      font-size: clamp(24px, 3vw, 34px);
+                      line-height: 1.05;
+                      letter-spacing: -1px;
+                      text-align: center;
+                      color: rgb(255, 255, 255);
+                    "
+                  >
+                    <span class="sc-interp">Knowledge in less time</span>
+                  </div>
+                </div>
+                <div
+                  data-dc-tpl="88"
+                  style="
+                    padding: 26px 26px 28px;
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1 1 0%;
+                  "
+                >
+                  <div
+                    data-dc-tpl="89"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="90"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 22px;
+                        letter-spacing: -0.5px;
+                      "
+                    >
+                      <span class="sc-interp">Summarist</span>
+                    </h3>
+                    <span
+                      data-dc-tpl="91"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        background: rgba(47, 107, 255, 0.09);
+                        padding: 5px 11px;
+                        border-radius: 100px;
+                      "
+                      ><span class="sc-interp">SaaS</span></span
+                    >
+                  </div>
+                  <p
+                    data-dc-tpl="92"
+                    style="
+                      margin-top: 12px;
+                      font-size: 15px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                      flex: 1 1 0%;
+                    "
+                  >
+                    <span class="sc-interp"
+                      >A book-summary platform with authentication, audio
+                      playback and subscription tiers. Implemented Firebase auth
+                      and clean state management.</span
+                    >
+                  </p>
+                  <div
+                    data-dc-tpl="93"
+                    style="
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: 7px;
+                      margin-top: 18px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">Next.js</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">Firebase</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">Redux</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="96"
+                    style="
+                      display: flex;
+                      gap: 14px;
+                      margin-top: 22px;
+                      font-weight: 700;
+                      font-size: 14.5px;
+                    "
+                  >
+                    <a
+                      data-dc-tpl="97"
+                      href="https://advanced-internship-theta.vercel.app/"
+                      target="_blank"
+                      class="scp5"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(37, 99, 235);
+                      "
+                      >Live demo →</a
+                    >
+                    <a
+                      data-dc-tpl="98"
+                      href="https://github.com/jdblair78/Online-Book-Store.git"
+                      target="_blank"
+                      class="scp6"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(58, 66, 80);
+                      "
+                      >Code</a
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                data-dc-tpl="81"
+                data-reveal=""
+                class="scp4"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  background: rgb(255, 255, 255);
+                  border: 1px solid rgba(15, 17, 21, 0.06);
+                  border-radius: 24px;
+                  overflow: hidden;
+                  box-shadow: rgba(15, 17, 21, 0.06) 0px 12px 34px;
+                  transition:
+                    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.5s,
+                    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                  opacity: 0;
+                  transform: translateY(28px);
+                "
+              >
+                <div
+                  data-dc-tpl="82"
+                  style="
+                    position: relative;
+                    height: 190px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 26px;
+                    background: linear-gradient(
+                      140deg,
+                      rgb(76, 29, 149),
+                      rgb(139, 92, 246)
+                    );
+                    overflow: hidden;
+                  "
+                >
+                  <div
+                    data-dc-tpl="83"
+                    style="
+                      position: absolute;
+                      top: 14px;
+                      left: 16px;
+                      display: flex;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="84"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.35);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="85"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.25);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="86"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.18);
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    data-dc-tpl="87"
+                    style="
+                      font-family: &quot;Space Grotesk&quot;, sans-serif;
+                      font-weight: 700;
+                      font-size: clamp(24px, 3vw, 34px);
+                      line-height: 1.05;
+                      letter-spacing: -1px;
+                      text-align: center;
+                      color: rgb(255, 255, 255);
+                    "
+                  >
+                    <span class="sc-interp">Create · sell · collect</span>
+                  </div>
+                </div>
+                <div
+                  data-dc-tpl="88"
+                  style="
+                    padding: 26px 26px 28px;
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1 1 0%;
+                  "
+                >
+                  <div
+                    data-dc-tpl="89"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="90"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 22px;
+                        letter-spacing: -0.5px;
+                      "
+                    >
+                      <span class="sc-interp">Ultraverse</span>
+                    </h3>
+                    <span
+                      data-dc-tpl="91"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        background: rgba(47, 107, 255, 0.09);
+                        padding: 5px 11px;
+                        border-radius: 100px;
+                      "
+                      ><span class="sc-interp">Web3</span></span
+                    >
+                  </div>
+                  <p
+                    data-dc-tpl="92"
+                    style="
+                      margin-top: 12px;
+                      font-size: 15px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                      flex: 1 1 0%;
+                    "
+                  >
+                    <span class="sc-interp"
+                      >An NFT marketplace concept — browse, mint and trade
+                      digital collectibles inside a polished, animated
+                      storefront.</span
+                    >
+                  </p>
+                  <div
+                    data-dc-tpl="93"
+                    style="
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: 7px;
+                      margin-top: 18px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">React</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">JavaScript</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">CSS3</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="96"
+                    style="
+                      display: flex;
+                      gap: 14px;
+                      margin-top: 22px;
+                      font-weight: 700;
+                      font-size: 14.5px;
+                    "
+                  >
+                    <a
+                      data-dc-tpl="97"
+                      href="https://joshua-internship-pi.vercel.app/"
+                      target="_blank"
+                      class="scp5"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(37, 99, 235);
+                      "
+                      >Live demo →</a
+                    >
+                    <a
+                      data-dc-tpl="98"
+                      href="https://github.com/jdblair78/Joshua-internship"
+                      target="_blank"
+                      class="scp6"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(58, 66, 80);
+                      "
+                      >Code</a
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                data-dc-tpl="81"
+                data-reveal=""
+                class="scp4"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  background: rgb(255, 255, 255);
+                  border: 1px solid rgba(15, 17, 21, 0.06);
+                  border-radius: 24px;
+                  overflow: hidden;
+                  box-shadow: rgba(15, 17, 21, 0.06) 0px 12px 34px;
+                  transition:
+                    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.5s,
+                    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                  opacity: 0;
+                  transform: translateY(28px);
+                "
+              >
+                <div
+                  data-dc-tpl="82"
+                  style="
+                    position: relative;
+                    height: 190px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 26px;
+                    background: linear-gradient(
+                      140deg,
+                      rgb(26, 26, 26),
+                      rgb(229, 9, 20)
+                    );
+                    overflow: hidden;
+                  "
+                >
+                  <div
+                    data-dc-tpl="83"
+                    style="
+                      position: absolute;
+                      top: 14px;
+                      left: 16px;
+                      display: flex;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="84"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.35);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="85"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.25);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="86"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.18);
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    data-dc-tpl="87"
+                    style="
+                      font-family: &quot;Space Grotesk&quot;, sans-serif;
+                      font-weight: 700;
+                      font-size: clamp(24px, 3vw, 34px);
+                      line-height: 1.05;
+                      letter-spacing: -1px;
+                      text-align: center;
+                      color: rgb(255, 255, 255);
+                    "
+                  >
+                    <span class="sc-interp">Every movie, one search</span>
+                  </div>
+                </div>
+                <div
+                  data-dc-tpl="88"
+                  style="
+                    padding: 26px 26px 28px;
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1 1 0%;
+                  "
+                >
+                  <div
+                    data-dc-tpl="89"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="90"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 22px;
+                        letter-spacing: -0.5px;
+                      "
+                    >
+                      <span class="sc-interp">Unlimited Movies</span>
+                    </h3>
+                    <span
+                      data-dc-tpl="91"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        background: rgba(47, 107, 255, 0.09);
+                        padding: 5px 11px;
+                        border-radius: 100px;
+                      "
+                      ><span class="sc-interp">Media</span></span
+                    >
+                  </div>
+                  <p
+                    data-dc-tpl="92"
+                    style="
+                      margin-top: 12px;
+                      font-size: 15px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                      flex: 1 1 0%;
+                    "
+                  >
+                    <span class="sc-interp"
+                      >A cinematic movie-discovery app with live data, category
+                      rows and instant search, wrapped in a dark, poster-forward
+                      interface.</span
+                    >
+                  </p>
+                  <div
+                    data-dc-tpl="93"
+                    style="
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: 7px;
+                      margin-top: 18px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">React</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">REST API</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">Tailwind</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="96"
+                    style="
+                      display: flex;
+                      gap: 14px;
+                      margin-top: 22px;
+                      font-weight: 700;
+                      font-size: 14.5px;
+                    "
+                  >
+                    <a
+                      data-dc-tpl="97"
+                      href="https://fesreactfinal.vercel.app/"
+                      target="_blank"
+                      class="scp5"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(37, 99, 235);
+                      "
+                      >Live demo →</a
+                    >
+                    <a
+                      data-dc-tpl="98"
+                      href="https://github.com/jdblair78/Flixster.git"
+                      target="_blank"
+                      class="scp6"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(58, 66, 80);
+                      "
+                      >Code</a
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                data-dc-tpl="81"
+                data-reveal=""
+                class="scp4"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  background: rgb(255, 255, 255);
+                  border: 1px solid rgba(15, 17, 21, 0.06);
+                  border-radius: 24px;
+                  overflow: hidden;
+                  box-shadow: rgba(15, 17, 21, 0.06) 0px 12px 34px;
+                  transition:
+                    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.5s,
+                    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                  opacity: 0;
+                  transform: translateY(28px);
+                "
+              >
+                <div
+                  data-dc-tpl="82"
+                  style="
+                    position: relative;
+                    height: 190px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 26px;
+                    background: linear-gradient(
+                      140deg,
+                      rgb(12, 74, 110),
+                      rgb(6, 182, 212)
+                    );
+                    overflow: hidden;
+                  "
+                >
+                  <div
+                    data-dc-tpl="83"
+                    style="
+                      position: absolute;
+                      top: 14px;
+                      left: 16px;
+                      display: flex;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="84"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.35);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="85"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.25);
+                      "
+                    ></span>
+                    <span
+                      data-dc-tpl="86"
+                      style="
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.18);
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    data-dc-tpl="87"
+                    style="
+                      font-family: &quot;Space Grotesk&quot;, sans-serif;
+                      font-weight: 700;
+                      font-size: clamp(24px, 3vw, 34px);
+                      line-height: 1.05;
+                      letter-spacing: -1px;
+                      text-align: center;
+                      color: rgb(255, 255, 255);
+                    "
+                  >
+                    <span class="sc-interp">Disney+</span>
+                  </div>
+                </div>
+                <div
+                  data-dc-tpl="88"
+                  style="
+                    padding: 26px 26px 28px;
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1 1 0%;
+                  "
+                >
+                  <div
+                    data-dc-tpl="89"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="90"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 22px;
+                        letter-spacing: -0.5px;
+                      "
+                    >
+                      <span class="sc-interp">Disney+ Clone</span>
+                    </h3>
+                    <span
+                      data-dc-tpl="91"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        background: rgba(47, 107, 255, 0.09);
+                        padding: 5px 11px;
+                        border-radius: 100px;
+                      "
+                      ><span class="sc-interp">Education</span></span
+                    >
+                  </div>
+                  <p
+                    data-dc-tpl="92"
+                    style="
+                      margin-top: 12px;
+                      font-size: 15px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                      flex: 1 1 0%;
+                    "
+                  >
+                    <span class="sc-interp"
+                      >A Disney+ inspired streaming clone with responsive
+                      layouts, dynamic movie rows, hero banners, and clean
+                      content browsing designed to mirror a polished, modern
+                      entertainment platform.</span
+                    >
+                  </p>
+                  <div
+                    data-dc-tpl="93"
+                    style="
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: 7px;
+                      margin-top: 18px;
+                    "
+                  >
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">React</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">Firebase</span></span
+                    >
+
+                    <span
+                      data-dc-tpl="95"
+                      style="
+                        font-size: 12.5px;
+                        font-weight: 600;
+                        color: rgb(58, 66, 80);
+                        padding: 5px 11px;
+                        border-radius: 8px;
+                        background: rgb(242, 244, 247);
+                      "
+                      ><span class="sc-interp">Redux</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="96"
+                    style="
+                      display: flex;
+                      gap: 14px;
+                      margin-top: 22px;
+                      font-weight: 700;
+                      font-size: 14.5px;
+                    "
+                  >
+                    <a
+                      data-dc-tpl="97"
+                      href="https://disney-clone-beta-three.vercel.app/"
+                      target="_blank"
+                      class="scp5"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(37, 99, 235);
+                      "
+                      >Live demo →</a
+                    >
+                    <a
+                      data-dc-tpl="98"
+                      href="https://github.com/jdblair78/Disney-Clone.git"
+                      target="_blank"
+                      class="scp6"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: rgb(58, 66, 80);
+                      "
+                      >Code</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          data-dc-tpl="99"
+          id="journey"
+          style="display: flex; justify-content: center; padding: 70px 24px"
+        >
+          <div data-dc-tpl="100" style="width: 100%; max-width: 820px">
+            <div
+              data-dc-tpl="101"
+              style="text-align: center; margin-bottom: 52px"
+            >
+              <div
+                data-dc-tpl="102"
+                data-reveal=""
+                style="
+                  font-weight: 700;
+                  font-size: 13px;
+                  letter-spacing: 2px;
+                  text-transform: uppercase;
+                  color: rgb(47, 107, 255);
+                  opacity: 0;
+                  transform: translateY(20px);
+                  transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                The path
+              </div>
+              <h2
+                data-dc-tpl="103"
+                data-reveal=""
+                data-delay="60"
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-weight: 700;
+                  font-size: clamp(30px, 4vw, 46px);
+                  letter-spacing: -1.5px;
+                  margin-top: 12px;
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                A different kind of journey
+              </h2>
+            </div>
+            <div
+              data-dc-tpl="104"
+              style="position: relative; padding-left: 34px"
+            >
+              <div
+                data-dc-tpl="105"
+                style="
+                  position: absolute;
+                  left: 9px;
+                  top: 6px;
+                  bottom: 6px;
+                  width: 2px;
+                  background: linear-gradient(
+                    rgb(37, 99, 235),
+                    rgba(37, 99, 235, 0.15)
+                  );
+                "
+              ></div>
+
+              <div
+                data-dc-tpl="107"
+                data-reveal=""
+                style="
+                  position: relative;
+                  margin-bottom: 34px;
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                <span
+                  data-dc-tpl="108"
+                  style="
+                    position: absolute;
+                    left: -34px;
+                    top: 4px;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: rgb(255, 255, 255);
+                    border: 3px solid rgb(37, 99, 235);
+                    box-shadow: rgba(37, 99, 235, 0.1) 0px 0px 0px 5px;
+                  "
+                ></span>
+                <div
+                  data-dc-tpl="109"
+                  style="
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.06);
+                    border-radius: 18px;
+                    padding: 22px 24px;
+                    box-shadow: rgba(15, 17, 21, 0.05) 0px 8px 24px;
+                  "
+                >
+                  <div
+                    data-dc-tpl="110"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                      flex-wrap: wrap;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="111"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 18.5px;
+                      "
+                    >
+                      <span class="sc-interp"
+                        >Frontend Software Engineering</span
+                      >
+                    </h3>
+                    <span
+                      data-dc-tpl="112"
+                      style="
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        white-space: nowrap;
+                      "
+                      ><span class="sc-interp">2025 – 2026</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="113"
+                    style="
+                      font-weight: 600;
+                      font-size: 14px;
+                      color: rgb(90, 100, 114);
+                      margin-top: 3px;
+                    "
+                  >
+                    <span class="sc-interp">Frontend Simplified</span>
+                  </div>
+                  <p
+                    data-dc-tpl="114"
+                    style="
+                      margin-top: 10px;
+                      font-size: 14.5px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                    "
+                  >
+                    <span class="sc-interp"
+                      >Intensive training in modern web development: React,
+                      Next.js, API integration, component architecture, state
+                      management and responsive design. Built and shipped four
+                      production-style projects.</span
+                    >
+                  </p>
+                </div>
+              </div>
+
+              <div
+                data-dc-tpl="107"
+                data-reveal=""
+                style="
+                  position: relative;
+                  margin-bottom: 34px;
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                <span
+                  data-dc-tpl="108"
+                  style="
+                    position: absolute;
+                    left: -34px;
+                    top: 4px;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: rgb(255, 255, 255);
+                    border: 3px solid rgb(37, 99, 235);
+                    box-shadow: rgba(37, 99, 235, 0.1) 0px 0px 0px 5px;
+                  "
+                ></span>
+                <div
+                  data-dc-tpl="109"
+                  style="
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.06);
+                    border-radius: 18px;
+                    padding: 22px 24px;
+                    box-shadow: rgba(15, 17, 21, 0.05) 0px 8px 24px;
+                  "
+                >
+                  <div
+                    data-dc-tpl="110"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                      flex-wrap: wrap;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="111"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 18.5px;
+                      "
+                    >
+                      <span class="sc-interp">General Manager</span>
+                    </h3>
+                    <span
+                      data-dc-tpl="112"
+                      style="
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        white-space: nowrap;
+                      "
+                      ><span class="sc-interp">2023 – Present</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="113"
+                    style="
+                      font-weight: 600;
+                      font-size: 14px;
+                      color: rgb(90, 100, 114);
+                      margin-top: 3px;
+                    "
+                  >
+                    <span class="sc-interp">Penn Station East Coast Subs</span>
+                  </div>
+                  <p
+                    data-dc-tpl="114"
+                    style="
+                      margin-top: 10px;
+                      font-size: 14.5px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                    "
+                  >
+                    <span class="sc-interp"
+                      >Lead all operations, team development and guest
+                      experience for a high-volume location — driving 14%
+                      year-over-year sales growth. The same ownership I now
+                      bring to shipping software.</span
+                    >
+                  </p>
+                </div>
+              </div>
+
+              <div
+                data-dc-tpl="107"
+                data-reveal=""
+                style="
+                  position: relative;
+                  margin-bottom: 34px;
+                  opacity: 0;
+                  transform: translateY(24px);
+                  transition: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+                "
+              >
+                <span
+                  data-dc-tpl="108"
+                  style="
+                    position: absolute;
+                    left: -34px;
+                    top: 4px;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: rgb(255, 255, 255);
+                    border: 3px solid rgb(37, 99, 235);
+                    box-shadow: rgba(37, 99, 235, 0.1) 0px 0px 0px 5px;
+                  "
+                ></span>
+                <div
+                  data-dc-tpl="109"
+                  style="
+                    background: rgb(255, 255, 255);
+                    border: 1px solid rgba(15, 17, 21, 0.06);
+                    border-radius: 18px;
+                    padding: 22px 24px;
+                    box-shadow: rgba(15, 17, 21, 0.05) 0px 8px 24px;
+                  "
+                >
+                  <div
+                    data-dc-tpl="110"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 12px;
+                      flex-wrap: wrap;
+                    "
+                  >
+                    <h3
+                      data-dc-tpl="111"
+                      style="
+                        font-family: &quot;Space Grotesk&quot;, sans-serif;
+                        font-weight: 700;
+                        font-size: 18.5px;
+                      "
+                    >
+                      <span class="sc-interp">Assistant Manager</span>
+                    </h3>
+                    <span
+                      data-dc-tpl="112"
+                      style="
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: rgb(47, 107, 255);
+                        white-space: nowrap;
+                      "
+                      ><span class="sc-interp">2017 – 2019</span></span
+                    >
+                  </div>
+                  <div
+                    data-dc-tpl="113"
+                    style="
+                      font-weight: 600;
+                      font-size: 14px;
+                      color: rgb(90, 100, 114);
+                      margin-top: 3px;
+                    "
+                  >
+                    <span class="sc-interp">Cracker Barrel</span>
+                  </div>
+                  <p
+                    data-dc-tpl="114"
+                    style="
+                      margin-top: 10px;
+                      font-size: 14.5px;
+                      line-height: 1.6;
+                      color: rgb(90, 100, 114);
+                    "
+                  >
+                    <span class="sc-interp"
+                      >Ran front- and back-of-house operations for a
+                      high-volume, full-service restaurant, consistently hitting
+                      staffing, onboarding and training goals.</span
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          data-dc-tpl="115"
+          id="contact"
+          style="
+            display: flex;
+            justify-content: center;
+            padding: 80px 24px 90px;
+          "
+        >
+          <div
+            data-dc-tpl="116"
+            data-reveal=""
+            style="
+              position: relative;
+              width: 100%;
+              max-width: 1120px;
+              overflow: hidden;
+              border-radius: 32px;
+              background: linear-gradient(
+                140deg,
+                rgb(29, 58, 138),
+                rgb(37, 99, 235) 55%,
+                rgb(59, 130, 246)
+              );
+              padding: 70px 40px;
+              text-align: center;
+              box-shadow: rgba(37, 99, 235, 0.35) 0px 30px 70px;
+              opacity: 0;
+              transform: translateY(28px);
+              transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            "
+          >
+            <div
+              data-dc-tpl="117"
+              style="
+                position: absolute;
+                top: -40px;
+                right: -30px;
+                width: 220px;
+                height: 220px;
+                border: 2px solid rgba(255, 255, 255, 0.14);
+                border-radius: 50%;
+              "
+            ></div>
+            <div
+              data-dc-tpl="118"
+              style="
+                position: absolute;
+                bottom: -60px;
+                left: -40px;
+                width: 260px;
+                height: 260px;
+                border: 2px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+              "
+            ></div>
+            <h2
+              data-dc-tpl="119"
+              style="
+                position: relative;
+                font-family: &quot;Space Grotesk&quot;, sans-serif;
+                font-weight: 700;
+                font-size: clamp(32px, 5vw, 52px);
+                letter-spacing: -2px;
+                color: rgb(255, 255, 255);
+                line-height: 1.05;
+              "
+            >
+              Let's build something great.
+            </h2>
+            <p
+              data-dc-tpl="120"
+              style="
+                position: relative;
+                max-width: 520px;
+                margin: 18px auto 0px;
+                font-size: 17px;
+                line-height: 1.6;
+                color: rgba(255, 255, 255, 0.85);
+              "
+            >
+              Have a role or a project in mind? I'd love to hear about it. My
+              inbox is always open.
+            </p>
+            <div
+              data-dc-tpl="121"
+              style="
+                position: relative;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 14px;
+                justify-content: center;
+                margin-top: 34px;
+              "
+            >
+              <a
+                data-dc-tpl="122"
+                href="mailto:jdblair@gmail.com"
+                class="scp7"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 9px;
+                  padding: 16px 30px;
+                  border-radius: 14px;
+                  font-weight: 700;
+                  font-size: 16px;
+                  color: rgb(37, 99, 235);
+                  background: rgb(255, 255, 255);
+                  box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px;
+                "
+                >✉ jdblair@gmail.com</a
+              >
+              <a
+                data-dc-tpl="123"
+                href="https://www.linkedin.com/in/joshua-blair-4310a183/"
+                target="_blank"
+                class="scp8"
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 9px;
+                  padding: 16px 28px;
+                  border-radius: 14px;
+                  font-weight: 700;
+                  font-size: 16px;
+                  color: rgb(255, 255, 255);
+                  background: rgba(255, 255, 255, 0.14);
+                  border: 1px solid rgba(255, 255, 255, 0.3);
+                "
+                >Connect on LinkedIn</a
+              >
+            </div>
+          </div>
+        </section>
+        <footer
+          data-dc-tpl="124"
+          style="
+            background: rgb(20, 21, 24);
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            padding: 56px 24px 40px;
+          "
+        >
+          <div
+            data-dc-tpl="125"
+            style="
+              width: 100%;
+              max-width: 1120px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 24px;
+              text-align: center;
+            "
+          >
+            <a
+              data-dc-tpl="126"
+              href="#top"
+              style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
+                background: linear-gradient(
+                  135deg,
+                  rgb(59, 130, 246),
+                  rgb(37, 99, 235)
+                );
+                font-family: &quot;Space Grotesk&quot;, sans-serif;
+                font-weight: 700;
+                font-size: 20px;
+              "
+              >JB</a
+            >
+            <div
+              data-dc-tpl="127"
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 26px;
+                font-weight: 600;
+                font-size: 15px;
+                color: rgb(195, 202, 212);
+              "
+            >
+              <a
+                data-dc-tpl="128"
+                href="https://github.com/jdblair78"
+                target="_blank"
+                class="scp9"
+                >GitHub</a
+              >
+              <a
+                data-dc-tpl="129"
+                href="https://www.linkedin.com/in/joshua-blair-4310a183/"
+                target="_blank"
+                class="scp9"
+                >LinkedIn</a
+              >
+              <a data-dc-tpl="130" href="mailto:jdblair@gmail.com" class="scp9"
+                >Contact</a
+              >
+              <a data-dc-tpl="131" href="#top" class="scp9">Back to top</a>
+            </div>
+            <div
+              data-dc-tpl="132"
+              style="
+                height: 1px;
+                width: 100%;
+                max-width: 420px;
+                background: rgba(255, 255, 255, 0.1);
+              "
+            ></div>
+            <div
+              data-dc-tpl="133"
+              style="font-size: 13.5px; color: rgb(139, 147, 161)"
+            >
+              © 2026 Joshua Blair · Built with Next.js energy &amp; a lot of
+              coffee.
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script type="text/x-dc" data-dc-script="">
+      class Component extends DCLogic {
+        renderVals() {
+          return {
+            marquee: ['Next.js','React','JavaScript','TypeScript','Tailwind CSS','Firebase','HTML5','CSS3','Git & GitHub','REST APIs'],
+            stats: [
+              { value: 15, suffix: '+', display: '15+', label: 'Repositories shipped' },
+              { value: 157, suffix: '', display: '157', label: 'Contributions / yr' },
+              { value: 10, suffix: '+', display: '10+', label: 'Yrs leading teams' },
+              { value: 5, suffix: '', display: '5', label: 'Featured projects' },
+            ],
+            skills: ['Next.js','React.js','JavaScript (ES6+)','TypeScript','HTML5','CSS3','Tailwind CSS','Firebase','REST APIs','Git & GitHub','Responsive Design','State Management','Performance'],
+            projects: [
+              {
+                name: 'Skinstric AI',
+                tag: 'AI · Skincare',
+                headline: 'Sophisticated skincare',
+                previewBg: '#0f1115',
+                previewFg: '#ffffff',
+                desc: "An AI-driven skincare analysis app that scans a user's face and recommends a tailored routine. Built the responsive UI and the camera-capture flow.",
+                stack: ['Next.js','React','AI API'],
+                live: 'https://build-like-a-pro.vercel.app/',
+                code: 'https://github.com/jdblair78/Skinstric-AI',
+              },
+              {
+                name: 'Summarist',
+                tag: 'SaaS',
+                headline: 'Knowledge in less time',
+                previewBg: 'linear-gradient(140deg,#0b3d2e,#16a34a)',
+                previewFg: '#ffffff',
+                desc: 'A book-summary platform with authentication, audio playback and subscription tiers. Implemented Firebase auth and clean state management.',
+                stack: ['Next.js','Firebase','Redux'],
+                live: 'https://build-like-a-pro.vercel.app/',
+                code: 'https://github.com/jdblair78',
+              },
+              {
+                name: 'Ultraverse',
+                tag: 'Web3',
+                headline: 'Create · sell · collect',
+                previewBg: 'linear-gradient(140deg,#4c1d95,#8b5cf6)',
+                previewFg: '#ffffff',
+                desc: 'An NFT marketplace concept — browse, mint and trade digital collectibles inside a polished, animated storefront.',
+                stack: ['React','JavaScript','CSS3'],
+                live: 'https://build-like-a-pro.vercel.app/',
+                code: 'https://github.com/jdblair78/Joshua-internship',
+              },
+              {
+                name: 'Unlimited Movies',
+                tag: 'Media',
+                headline: 'Every movie, one search',
+                previewBg: 'linear-gradient(140deg,#1a1a1a,#e50914)',
+                previewFg: '#ffffff',
+                desc: 'A cinematic movie-discovery app with live data, category rows and instant search, wrapped in a dark, poster-forward interface.',
+                stack: ['React','REST API','Tailwind'],
+                live: 'https://build-like-a-pro.vercel.app/',
+                code: 'https://github.com/jdblair78',
+              },
+              {
+                name: 'Build Like a Pro',
+                tag: 'Education',
+                headline: 'Learn faster, build sharper',
+                previewBg: 'linear-gradient(140deg,#0c4a6e,#06b6d4)',
+                previewFg: '#ffffff',
+                desc: 'A polished learning platform concept focused on guided frontend practice, reusable lesson flows, and progress tracking for developers sharpening production skills.',
+                stack: ['Next.js','TypeScript','Tailwind'],
+                live: 'https://build-like-a-pro.vercel.app/',
+                code: 'https://github.com/jdblair78',
+              },
+            ],
+            timeline: [
+              {
+                role: 'Frontend Software Engineering',
+                org: 'Frontend Simplified',
+                years: '2025 – 2026',
+                desc: 'Intensive training in modern web development: React, Next.js, API integration, component architecture, state management and responsive design. Built and shipped four production-style projects.',
+              },
+              {
+                role: 'General Manager',
+                org: 'Penn Station East Coast Subs',
+                years: '2023 – Present',
+                desc: 'Lead all operations, team development and guest experience for a high-volume location — driving 14% year-over-year sales growth. The same ownership I now bring to shipping software.',
+              },
+              {
+                role: 'Assistant Manager',
+                org: 'Cracker Barrel',
+                years: '2017 – 2019',
+                desc: 'Ran front- and back-of-house operations for a high-volume, full-service restaurant, consistently hitting staffing, onboarding and training goals.',
+              },
+            ],
+          };
+        }
+
+      }
+    </script>
+  </body>
+</html>
